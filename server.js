@@ -1,27 +1,24 @@
 const express = require("express");
-const bcrypt = require("bcrypt-nodejs");
+const mongoose = require("mongoose");
 const cors = require("cors");
-const knex = require("knex");
+const bcrypt = require("bcryptjs");
+const Joi = require("joi");
 
-// const register = require("./controllers/register");
-// const signin = require("./controllers/signin");
+const register = require("./controllers/register");
+const signin = require("./controllers/signin");
 
 const app = express();
 
-const db = {
-  users: [
-    {
-      id: "123",
-      username: "johnny",
-      password: "password"
-    },
-    {
-      id: "124",
-      username: "sally",
-      password: "password"
-    }
-  ]
-};
+// db config
+const db = require("./config/keys").mongoURI;
+// connect to MongoDB
+mongoose
+  .connect(
+    db,
+    { useNewUrlParser: true }
+  )
+  .then(() => console.log("MongoDB connected..."))
+  .catch(err => console.log(err));
 
 app.use(cors());
 app.use(express.json());
@@ -30,22 +27,10 @@ app.get("/", (req, res) => {
   res.send(db.users);
 });
 
-app.post("/signin", (req, res) => {
-  const { username, password } = req.body;
-  if (username === db.users[0].username && password === db.users[0].password) {
-    res.json("success");
-  }
-  res.status(400).json("failed");
-});
+app.post("/signin", signin.handleSignin(Joi, bcrypt));
 
 app.post("/register", (req, res) => {
-  const { username, password } = req.body;
-  db.users.push({
-    id: "125",
-    username,
-    password
-  });
-  res.json(db.users[db.users.length - 1]);
+  register.handleRegister(req, res, Joi, bcrypt);
 });
 
 const port = process.env.PORT || 3000;
