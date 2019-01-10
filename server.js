@@ -6,6 +6,7 @@ const Joi = require("joi");
 
 const register = require("./controllers/register");
 const signin = require("./controllers/signin");
+const messages = require("./controllers/messages");
 
 const app = express();
 
@@ -24,7 +25,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send(db.users);
+  res.send("Hello");
 });
 
 app.post("/signin", signin.handleSignin(Joi, bcrypt));
@@ -33,7 +34,15 @@ app.post("/register", (req, res) => {
   register.handleRegister(req, res, Joi, bcrypt);
 });
 
-const port = process.env.PORT || 3000;
+app.get("/messages", (req, res) => {
+  messages.handleGetMessages(req, res);
+});
+
+app.post("/messages", (req, res) => {
+  messages.handlePostMessage(req, res);
+});
+
+const port = process.env.PORT || 3333;
 app.listen(port, () => {
   console.log("Listening on port", port);
 });
