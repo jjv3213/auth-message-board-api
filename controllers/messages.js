@@ -9,7 +9,7 @@ const schema = Joi.object().keys({
     .required(),
   subject: Joi.string().required(),
   message: Joi.string()
-    .max(500)
+    .max(120)
     .required()
 });
 
